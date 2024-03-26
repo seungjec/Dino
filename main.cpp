@@ -2,6 +2,13 @@
 #include <SDL_image.h>
 #include <stdio.h>
 
+void jump(SDL_Rect& rect, int v0, int y0, int t);
+
+constexpr int window_w = 800;
+constexpr int window_h = 600;
+constexpr int FPS = 60;
+constexpr int frameDelay = 1000 / FPS;
+
 struct TextureStructure
 {
     int offset;
@@ -10,10 +17,6 @@ struct TextureStructure
 
 int main(int argc, char* argv[])
 {
-    constexpr int window_w = 800;
-    constexpr int window_h = 600;
-    const int FPS = 60;
-    const int frameDelay = 1000 / FPS;
     bool isRunning = true;
     Uint32 frameStart, frameTime, frameCount = 0;
     Uint32 format;
@@ -28,8 +31,9 @@ int main(int argc, char* argv[])
     bool dinoJumpLock = false;
     int dinoSpeed = 0;
     int dinoSpeedLock = 0;
-    int ydir = 1;
+    int dinoJumpHeight = 0;
     int hGround = 310;
+    int jumpframe = 0;
 
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_Window* window = SDL_CreateWindow(
@@ -110,7 +114,10 @@ int main(int argc, char* argv[])
                 dinoWalk = true;
                 break;
             case SDLK_SPACE:
-                dinoJump = true;
+                if (dinoWalk)
+                {
+                    dinoJump = true;
+                }
                 break;
             }
             break;
@@ -154,7 +161,7 @@ int main(int argc, char* argv[])
             dinoStateIdx = 1;
             dinoSpeed = 5;
         }
-        if (dinoJump == true)
+        if (dinoJump == true && dinoWalk == true)
         {
             if (!dinoJumpLock)
             {
@@ -163,16 +170,23 @@ int main(int argc, char* argv[])
             }
             dinoSpeed = dinoSpeedLock;
             dinoStateIdx = 4;
-            dinoRectDes.y -= 5 * ydir;
-            if (dinoRectDes.y < hGround - 150)
+
+            if (dinoSpeed == 5)
             {
-                ydir = -1;
+                dinoJumpHeight = 20;
             }
+            else if (dinoSpeed == 10)
+            {
+                dinoJumpHeight = 25;
+            }
+            jump(dinoRectDes, dinoJumpHeight, hGround, jumpframe);
+            jumpframe++;
+
             if (dinoRectDes.y > hGround)
             {
                 dinoJump = false;
                 dinoJumpLock = false;
-                ydir = 1;
+                jumpframe = 0;
                 dinoRectDes.y = hGround;
             }
         }
@@ -213,4 +227,9 @@ int main(int argc, char* argv[])
     SDL_Quit();
 
     return 0;
+}
+
+void jump(SDL_Rect& rect, int v0, int y0, int frame)
+{
+    rect.y = 0.5 * (frame * frame) - v0 * frame + y0;
 }
