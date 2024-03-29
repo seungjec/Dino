@@ -111,7 +111,14 @@ int main(int argc, char* argv[])
                 dinoRun = true;
                 break;
             case SDLK_RETURN:
-                dinoWalk = true;
+                if (dinoWalk == false)
+                {
+                    dinoWalk = true;
+                }
+                else
+                {
+                    dinoWalk = false;
+                }
                 break;
             case SDLK_SPACE:
                 if (dinoWalk)
@@ -151,6 +158,11 @@ int main(int argc, char* argv[])
         }
 
         // dino ป๓ลย
+        if (dinoWalk == false)
+        {
+            dinoStateIdx = 0;
+            dinoSpeed = 0;
+        }
         if (dinoRun == true && dinoWalk == true)
         {
             dinoStateIdx = 5;
